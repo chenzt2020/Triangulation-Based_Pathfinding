@@ -4,7 +4,7 @@
 #include <queue>
 
 /// <summary>
-/// ½«.mapÎÄ¼ş×ª»»Îª.polyÎÄ¼ş
+/// å°†.mapæ–‡ä»¶è½¬æ¢ä¸º.polyæ–‡ä»¶
 /// </summary>
 void map2poly(const char* mapfile, const char* polyfile) {
 	FILE* fm;
@@ -60,12 +60,12 @@ void map2poly(const char* mapfile, const char* polyfile) {
 }
 
 /// <summary>
-/// ÓÃÂ©¶·Ëã·¨Çó×î¶ÌÂ·¾¶
+/// ç”¨æ¼æ–—ç®—æ³•æ±‚æœ€çŸ­è·¯å¾„
 /// </summary>
-/// <param name="vt">´ÓÆğµãµ½ÖÕµã¾­¹ıµÄÈı½ÇÍø¸ñ</param>
-/// <param name="start">Æğµã</param>
-/// <param name="end">ÖÕµã</param>
-/// <param name="type">¿ØÖÆÊÇ·ñ´òÓ¡</param>
+/// <param name="vt">ä»èµ·ç‚¹åˆ°ç»ˆç‚¹ç»è¿‡çš„ä¸‰è§’ç½‘æ ¼</param>
+/// <param name="start">èµ·ç‚¹</param>
+/// <param name="end">ç»ˆç‚¹</param>
+/// <param name="type">æ§åˆ¶æ˜¯å¦æ‰“å°</param>
 /// <returns></returns>
 double funnel(std::vector<Triangle>& vt, Point start, Point end, const int type = 0) {
 	int n = vt.size();
@@ -201,13 +201,13 @@ double funnel(std::vector<Triangle>& vt, Point start, Point end, const int type 
 }
 
 /// <summary>
-/// ÓÃÂ©¶·Ëã·¨¼ÆËãµ±Ç°Èı½ÇĞÎµ½ÆğµãµÄ¾àÀë£¬²¢¼ÆËãµ½ÖÕµãµÄ¹À¼Û
+/// ç”¨æ¼æ–—ç®—æ³•è®¡ç®—å½“å‰ä¸‰è§’å½¢åˆ°èµ·ç‚¹çš„è·ç¦»ï¼Œå¹¶è®¡ç®—åˆ°ç»ˆç‚¹çš„ä¼°ä»·
 /// </summary>
-/// <param name="vt">´ÓÆğµãµ½µ±Ç°Èı½ÇĞÎ¾­¹ıµÄÈı½ÇÍø¸ñ</param>
-/// <param name="start">Æğµã</param>
-/// <param name="end">ÖÕµã</param>
-/// <param name="dist">°´ÕÕ ¾àÀë+¹À¼Û ×îĞ¡µÄÄÇ¸öµã£¬¼ÆËãµÄÆğµãµ½µ±Ç°Èı½ÇĞÎµÄ¾àÀë</param>
-/// <param name="cost">°´ÕÕ ¾àÀë+¹À¼Û ×îĞ¡µÄÄÇ¸öµã£¬¼ÆËãµÄµ±Ç°Èı½ÇĞÎµ½ÖÕµãµÄ¹À¼Û</param>
+/// <param name="vt">ä»èµ·ç‚¹åˆ°å½“å‰ä¸‰è§’å½¢ç»è¿‡çš„ä¸‰è§’ç½‘æ ¼</param>
+/// <param name="start">èµ·ç‚¹</param>
+/// <param name="end">ç»ˆç‚¹</param>
+/// <param name="dist">æŒ‰ç…§ è·ç¦»+ä¼°ä»· æœ€å°çš„é‚£ä¸ªç‚¹ï¼Œè®¡ç®—çš„èµ·ç‚¹åˆ°å½“å‰ä¸‰è§’å½¢çš„è·ç¦»</param>
+/// <param name="cost">æŒ‰ç…§ è·ç¦»+ä¼°ä»· æœ€å°çš„é‚£ä¸ªç‚¹ï¼Œè®¡ç®—çš„å½“å‰ä¸‰è§’å½¢åˆ°ç»ˆç‚¹çš„ä¼°ä»·</param>
 void funnelcost(std::vector<Triangle> vt, Point start, Point end, double& dist, double& cost) {
 	int n = vt.size();
 	if (n <= 1)return;
@@ -363,17 +363,17 @@ void funnelcost(std::vector<Triangle> vt, Point start, Point end, double& dist, 
 }
 
 /// <summary>
-/// ¶ÁÈ¡.poly£¬¹¹ÔìÈı½ÇÍø¸ñµÄÁÚ½Ó±í£¬²¢ÓÃA*Ëã·¨ºÍÂ©¶·Ëã·¨¼ÆËã×î¶ÌÂ·¾¶
+/// è¯»å–.polyï¼Œæ„é€ ä¸‰è§’ç½‘æ ¼çš„é‚»æ¥è¡¨ï¼Œå¹¶ç”¨A*ç®—æ³•å’Œæ¼æ–—ç®—æ³•è®¡ç®—æœ€çŸ­è·¯å¾„
 /// </summary>
 void readpoly() {
 
-	/* 1 ´Ó.nodeºÍ.eleÎÄ¼şÖĞ¶ÁÈ¡Èı½ÇĞÎ²¢¹¹½¨ÁÚ½Ó±í */
+	/* 1 ä».nodeå’Œ.eleæ–‡ä»¶ä¸­è¯»å–ä¸‰è§’å½¢å¹¶æ„å»ºé‚»æ¥è¡¨ */
 
 	FILE* fnode;
 	FILE* fele;
 	if (fopen_s(&fnode, "a.1.node", "r") || fopen_s(&fele, "a.1.ele", "r"))return;
 
-	// ´Ó.nodeÎÄ¼şÖĞ¶ÁÈ¡¶¥µã
+	// ä».nodeæ–‡ä»¶ä¸­è¯»å–é¡¶ç‚¹
 	int n_point;
 	fscanf_s(fnode, "%d 2 0 1\n", &n_point);
 	Point* vp = new Point[n_point];
@@ -384,7 +384,7 @@ void readpoly() {
 		vp[i] = Point(x, y);
 	}
 
-	// ´Ó.eleÎÄ¼şÖĞ¶ÁÈëÈı½ÇĞÎ
+	// ä».eleæ–‡ä»¶ä¸­è¯»å…¥ä¸‰è§’å½¢
 	int n_tri;
 	fscanf_s(fele, "%d 3 0\n", &n_tri);
 	tri_int* vt_int = new tri_int[n_tri];
@@ -393,13 +393,13 @@ void readpoly() {
 		int a, b, c;
 		fscanf_s(fele, "%d%d%d%d", &a, &a, &b, &c);
 		vt[i] = Triangle(vp[a - 1], vp[b - 1], vp[c - 1]);
-		// ·½±ãÎªÁË·½±ãÂ©¶·Ëã·¨µÄ¼ÆËã£¬½«vtÖĞÈı½ÇĞÎ¶¥µã°´ÄæÊ±ÕëÅÅĞò
+		// æ–¹ä¾¿ä¸ºäº†æ–¹ä¾¿æ¼æ–—ç®—æ³•çš„è®¡ç®—ï¼Œå°†vtä¸­ä¸‰è§’å½¢é¡¶ç‚¹æŒ‰é€†æ—¶é’ˆæ’åº
 		if (!vt[i].isCCW()) {
 			Point t = vt[i].B;
 			vt[i].B = vt[i].C;
 			vt[i].C = t;
 		}
-		// ÎªÁË·½±ã¼ÆËãÈı½ÇĞÎÁÚ½Ó¹ØÏµ£¬´Ë´¦¶Ôvt_int¶¥µãË÷ÒıÅÅĞò
+		// ä¸ºäº†æ–¹ä¾¿è®¡ç®—ä¸‰è§’å½¢é‚»æ¥å…³ç³»ï¼Œæ­¤å¤„å¯¹vt_inté¡¶ç‚¹ç´¢å¼•æ’åº
 		if (a > b)std::swap(a, b);
 		if (b > c)std::swap(b, c);
 		if (a > b)std::swap(a, b);
@@ -410,12 +410,12 @@ void readpoly() {
 	fclose(fnode);
 	fclose(fele);
 
-	// ¼ÆËãÈı½ÇĞÎµÄÁÚ½Ó¹ØÏµ²¢´æÈëÁÚ½Ó±ímap
+	// è®¡ç®—ä¸‰è§’å½¢çš„é‚»æ¥å…³ç³»å¹¶å­˜å…¥é‚»æ¥è¡¨map
 	std::vector<std::vector<int>>map;
 	map.insert(map.begin(), n_tri, std::vector<int>());
 	for (int i = 0; i < n_tri; i++) {
 		for (int j = i + 1; j < n_tri; j++) {
-			// ¶ÁÈ¡Èı½ÇĞÎÊ±ÒÑ¾­½«¶¥µãË÷Òı°´ÕÕ´ÓĞ¡µ½´óÅÅĞò£¬Òò´ËÁ½¸öÈı½ÇĞÎÁÚ½ÓÊ±£¬¹²ÓĞ9ÖÖÇé¿ö
+			// è¯»å–ä¸‰è§’å½¢æ—¶å·²ç»å°†é¡¶ç‚¹ç´¢å¼•æŒ‰ç…§ä»å°åˆ°å¤§æ’åºï¼Œå› æ­¤ä¸¤ä¸ªä¸‰è§’å½¢é‚»æ¥æ—¶ï¼Œå…±æœ‰9ç§æƒ…å†µ
 			if ((vt_int[i].a == vt_int[j].a && (vt_int[i].b == vt_int[j].b || vt_int[i].b == vt_int[j].c || vt_int[i].c == vt_int[j].b || vt_int[i].c == vt_int[j].c))
 				|| (vt_int[i].a == vt_int[j].b && (vt_int[i].b == vt_int[j].c || vt_int[i].c == vt_int[j].c))
 				|| (vt_int[i].b == vt_int[j].a && (vt_int[i].c == vt_int[j].b || vt_int[i].c == vt_int[j].c))
@@ -427,7 +427,7 @@ void readpoly() {
 		}
 	}
 
-	// ´òÓ¡ÁÚ½Ó±í£¨DEBUG£©
+	// æ‰“å°é‚»æ¥è¡¨ï¼ˆDEBUGï¼‰
 	printf("map:\n");
 	int i = 0;
 	for (auto it : map) {
@@ -439,15 +439,16 @@ void readpoly() {
 		printf("\n");
 	}
 
-
-	/* 2 ¶ÔÁÚ½Ó±í½øĞĞA*Ñ°Â· */
+	/* 2 å¯¹é‚»æ¥è¡¨è¿›è¡ŒA*å¯»è·¯ */
 
 	Point s_point, e_point;
-	s_point = Point(0, 0);
-	e_point = Point(7, 10);
+	printf("start point (2 double):");
+	scanf_s("%lf %lf", &s_point.x, &s_point.y);
+	printf("end point (2 double):");
+	scanf_s("%lf %lf", &e_point.x, &e_point.y);
 
-	// ¼ÆËãÆğµãºÍÖÕµãÔÚÄÄ¸öÈı½ÇĞÎ
-	int s_tri, e_tri;
+	// è®¡ç®—èµ·ç‚¹å’Œç»ˆç‚¹åœ¨å“ªä¸ªä¸‰è§’å½¢
+	int s_tri=-1, e_tri=-1;
 	for (int i = 0; i < n_tri; i++) {
 		if (vt[i].havePoint(s_point)) {
 			s_tri = i;
@@ -460,16 +461,20 @@ void readpoly() {
 			break;
 		}
 	}
-	printf("start triangle:%d\nend triangle:%d\n\n", s_tri + 1, e_tri + 1);
+	if (s_tri == -1 || e_tri == -1) {
+		printf("The start or end point is not on the map.\n");
+		return;
+	}
+	else printf("start triangle:%d\nend triangle:%d\n\n", s_tri + 1, e_tri + 1);
 
-	// ³õÊ¼»¯±ê¼ÇÊı×é¡¢¾àÀëÊı×éºÍ¸¸½áµãÊı×é
+	// åˆå§‹åŒ–æ ‡è®°æ•°ç»„ã€è·ç¦»æ•°ç»„å’Œçˆ¶ç»“ç‚¹æ•°ç»„
 	bool* vis = new bool[n_tri]();
 	double* dist = new double[n_tri];
 	for (int i = 0; i < n_tri; i++)
 		dist[i] = INF;
 	int* pre = new int[n_tri];
 
-	// ÓÅÏÈ¶ÓÁĞA*Ñ°Â·
+	// ä¼˜å…ˆé˜Ÿåˆ—A*å¯»è·¯
 	std::priority_queue<qnode>q;
 	dist[s_tri] = 0;
 	while (!q.empty())q.pop();
@@ -483,7 +488,7 @@ void readpoly() {
 		if (vis[u])continue;
 		vis[u] = true;
 
-		// ¹¹Ôì´ÓÆğµãµ½µ±Ç°µãµÄÈı½ÇĞÎÂ·¾¶£¬²¢¼ÆËã¾àÀëºÍ´ú¼Û£¬ÊÇËã·¨µÄÖ÷ÒªºÄÊ±µã
+		// æ„é€ ä»èµ·ç‚¹åˆ°å½“å‰ç‚¹çš„ä¸‰è§’å½¢è·¯å¾„ï¼Œå¹¶è®¡ç®—è·ç¦»å’Œä»£ä»·ï¼Œæ˜¯ç®—æ³•çš„ä¸»è¦è€—æ—¶ç‚¹
 		std::vector<Triangle>path_tri;
 		int f = u;
 		while (1) {
@@ -507,7 +512,7 @@ void readpoly() {
 		}
 	}
 
-	// ´òÓ¡Â·¾¶
+	// æ‰“å°è·¯å¾„
 	if (dist[e_tri] == INF)return;
 	int* path_tri_id = new int[n_tri];
 	std::vector<Triangle>path_tri;

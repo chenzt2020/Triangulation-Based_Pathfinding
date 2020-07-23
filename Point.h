@@ -20,22 +20,22 @@ public:
 		return Point(x - b.x, y - b.y);
 	}
 	bool operator == (const Point& b)const {
-		// ÓÉÓÚ¾«¶ÈÔ­Òò£¬µ¼ÖÂreturn x == b.x && y == b.y;
-		// ²¢·ÇÃ¿´ÎÔËËã½á¹û¶¼ÏàÍ¬£¬Òò´ËÌí¼ÓÁË¾«¶ÈÈÝ´í
+		// ç”±äºŽç²¾åº¦åŽŸå› ï¼Œå¯¼è‡´return x == b.x && y == b.y;
+		// å¹¶éžæ¯æ¬¡è¿ç®—ç»“æžœéƒ½ç›¸åŒï¼Œå› æ­¤æ·»åŠ äº†ç²¾åº¦å®¹é”™
 		return sgn(x - b.x) == 0 && sgn(y - b.y) == 0;
 	}
 	bool operator != (const Point& b)const {
 		return sgn(x - b.x) || sgn(y - b.y);
 	}
-	// ²æ»ý
+	// å‰ç§¯
 	double operator ^(const Point& b)const {
 		return x * b.y - y * b.x;
 	}
-	// µã»ý
+	// ç‚¹ç§¯
 	double operator *(const Point& b)const {
 		return x * b.x + y * b.y;
 	}
-	// Á½µã¼ä¾àÀë
+	// ä¸¤ç‚¹é—´è·ç¦»
 	double distance(const Point& b)const {
 		return hypot(x - b.x, y - b.y);
 	}
@@ -49,9 +49,9 @@ public:
 	Point C;
 	Triangle() {}
 	Triangle(Point _A, Point _B, Point _C) :A(_A), B(_B), C(_C) {}
-	// ÅÐ¶ÏÈý½ÇÐÎÄÚÊÇ·ñÓÐµãp
+	// åˆ¤æ–­ä¸‰è§’å½¢å†…æ˜¯å¦æœ‰ç‚¹p
 	bool havePoint(const Point p);
-	// ÅÐ¶ÏÈý½ÇÐÎ¶¥µãÊÇ·ñ³ÊÄæÊ±ÕëÅÅÁÐ
+	// åˆ¤æ–­ä¸‰è§’å½¢é¡¶ç‚¹æ˜¯å¦å‘ˆé€†æ—¶é’ˆæŽ’åˆ—
 	bool isCCW() {
 		return ((B - A) ^ (C - A)) > 0;
 	};
