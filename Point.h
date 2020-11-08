@@ -1,4 +1,5 @@
 #pragma once
+#include <iostream>
 #include <cmath>
 #define INF 1e20
 #define EPS 1e-7
@@ -53,6 +54,12 @@ public:
 	Point<Scalar> C;
 	Triangle() {}
 	Triangle(const Point<Scalar>& _A, const Point<Scalar>& _B, const Point<Scalar>& _C) :A(_A), B(_B), C(_C) {}
+	friend std::ostream& operator <<(std::ostream& os, const Triangle& t) {
+		os << "A:(" << t.A.x << "," << t.A.y << ") "
+			<< "B:(" << t.B.x << "," << t.B.y << ") "
+			<< "C:(" << t.C.x << "," << t.C.y << ")\n";
+		return os;
+	}
 	// 判断三角形内是否有点p
 	bool havePoint(const Point<Scalar>& p);
 	bool havePoint2(const Point<Scalar>& p);
@@ -86,7 +93,7 @@ bool Triangle<Scalar>::havePoint(const Point<Scalar>& p) {
 	Scalar v0 = PA ^ PB;
 	Scalar v1 = PB ^ PC;
 	Scalar v2 = PC ^ PA;
-	return (v0 * v1 >= 0) && (v0 * v2 >= 0);
+	return (v0 >= 0 && v1 >= 0 && v2 >= 0) || (v0 <= 0 && v1 <= 0 && v2 <= 0);
 }
 
 template<typename Scalar>
