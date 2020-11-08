@@ -3,84 +3,105 @@
 #define INF 1e20
 #define EPS 1e-7
 
-int sgn(double x) {
+
+template<typename Scalar>
+inline int sgn(const Scalar& x) {
 	if (fabs(x) < EPS)return 0;
 	if (x < 0)return -1;
 	else return 1;
 }
 
-class Point
-{
+template<typename Scalar>
+class Point {
 public:
-	double x;
-	double y;
+	Scalar x;
+	Scalar y;
 	Point() {}
-	Point(double _x, double _y) :x(_x), y(_y) {}
+	Point(const Scalar& _x, const Scalar& _y) :x(_x), y(_y) {}
 	Point operator - (const Point& b) const {
 		return Point(x - b.x, y - b.y);
 	}
-	bool operator == (const Point& b)const {
+	bool operator ==(const Point& b) const {
 		// 由于精度原因，导致return x == b.x && y == b.y;
 		// 并非每次运算结果都相同，因此添加了精度容错
 		return sgn(x - b.x) == 0 && sgn(y - b.y) == 0;
 	}
-	bool operator != (const Point& b)const {
-		return sgn(x - b.x) || sgn(y - b.y);
+	bool operator !=(const Point& b) const {
+		return !(*this == b);
 	}
 	// 叉积
-	double operator ^(const Point& b)const {
+	Scalar operator ^(const Point& b)const {
 		return x * b.y - y * b.x;
 	}
 	// 点积
-	double operator *(const Point& b)const {
+	Scalar operator *(const Point& b)const {
 		return x * b.x + y * b.y;
 	}
 	// 两点间距离
-	double distance(const Point& b)const {
+	Scalar distance(const Point& b)const {
 		return hypot(x - b.x, y - b.y);
 	}
 };
+typedef Point<double>Pointd;
 
+template<typename Scalar>
 class Triangle
 {
 public:
-	Point A;
-	Point B;
-	Point C;
+	Point<Scalar> A;
+	Point<Scalar> B;
+	Point<Scalar> C;
 	Triangle() {}
-	Triangle(Point _A, Point _B, Point _C) :A(_A), B(_B), C(_C) {}
+	Triangle(const Point<Scalar>& _A, const Point<Scalar>& _B, const Point<Scalar>& _C) :A(_A), B(_B), C(_C) {}
 	// 判断三角形内是否有点p
-	bool havePoint(const Point p);
+	bool havePoint(const Point<Scalar>& p);
+	bool havePoint2(const Point<Scalar>& p);
 	// 判断三角形顶点是否呈逆时针排列
 	bool isCCW() {
 		return ((B - A) ^ (C - A)) > 0;
 	};
 };
-bool Triangle::havePoint(const Point p) {
-	Point v0 = C - A;
-	Point v1 = B - A;
-	Point v2 = p - A;
-	double dot00 = v0 * v0;
-	double dot01 = v0 * v1;
-	double dot02 = v0 * v2;
-	double dot11 = v1 * v1;
-	double dot12 = v1 * v2;
-	double invDenom = 1 / (dot00 * dot11 - dot01 * dot01);
-	double u = (dot11 * dot02 - dot01 * dot12) * invDenom;
-	double v = (dot00 * dot12 - dot01 * dot02) * invDenom;
-	return (u >= 0) && (v >= 0) && (u + v <= 1);
-}
+typedef Triangle<double>Triangled;
 
 struct tri_int {
 	int a, b, c;
 };
 
+template<typename Scalar>
 struct qnode {
 	int id;
-	double c;
+	Scalar c;
 	qnode() {}
-	qnode(int _id, double _c) :id(_id), c(_c) {}
+	qnode(int _id, const Scalar& _c) :id(_id), c(_c) {}
 	bool operator <(const qnode& b)const {
 		return c > b.c;
 	}
 };
+
+template<typename Scalar>
+bool Triangle<Scalar>::havePoint(const Point<Scalar>& p) {
+	Point<Scalar> PA = A - p;
+	Point<Scalar> PB = B - p;
+	Point<Scalar> PC = C - p;
+	Scalar v0 = PA ^ PB;
+	Scalar v1 = PB ^ PC;
+	Scalar v2 = PC ^ PA;
+	return (v0 * v1 >= 0) && (v0 * v2 >= 0);
+}
+
+template<typename Scalar>
+bool Triangle<Scalar>::havePoint2(const Point<Scalar>& p) {
+	Point<Scalar> v0 = C - A;
+	Point<Scalar> v1 = B - A;
+	Point<Scalar> v2 = p - A;
+	Scalar dot00 = v0 * v0;
+	Scalar dot01 = v0 * v1;
+	Scalar dot02 = v0 * v2;
+	Scalar dot11 = v1 * v1;
+	Scalar dot12 = v1 * v2;
+	double tmp = 1 / (dot00 * dot11 - dot01 * dot01);
+	double u = (dot11 * dot02 - dot01 * dot12) * tmp;
+	if (u < 0 || u > 1)return 0;
+	double v = (dot00 * dot12 - dot01 * dot02) * tmp;
+	return (v >= 0) && (u + v <= 1);
+}

@@ -12,11 +12,11 @@ void map2poly(const char* mapfile, const char* polyfile) {
 	if (fopen_s(&fm, mapfile, "r") | fopen_s(&fp, polyfile, "w"))return;
 
 	int n_hole;
-	Point bl, tr;
+	Pointd bl, tr;
 	fscanf_s(fm, "%d", &n_hole);
 	fscanf_s(fm, "%lf%lf%lf%lf", &bl.x, &bl.y, &tr.x, &tr.y);
-	std::vector<std::vector<Point>>v;
-	v.insert(v.begin(), n_hole, std::vector<Point>());
+	std::vector<std::vector<Pointd>>v;
+	v.insert(v.begin(), n_hole, std::vector<Pointd>());
 
 	int n_total = 4;
 	for (auto& it : v) {
@@ -34,7 +34,7 @@ void map2poly(const char* mapfile, const char* polyfile) {
 	fprintf(fp, "3 %lf %lf 0\n4 %lf %lf 0\n", tr.x, tr.y, bl.x, tr.y);
 	int l = 5;
 	for (auto it : v) {
-		for (auto jt : it) {
+		for (auto const& jt : it) {
 			fprintf(fp, "%d %lf %lf 0\n", l, jt.x, jt.y);
 			l++;
 		}
@@ -67,21 +67,22 @@ void map2poly(const char* mapfile, const char* polyfile) {
 /// <param name="end">终点</param>
 /// <param name="type">控制是否打印</param>
 /// <returns></returns>
-double funnel(std::vector<Triangle>& vt, Point start, Point end, const int type = 0) {
+template<typename Scalar>
+Scalar funnel(std::vector<Triangle<Scalar>>& vt, const Point<Scalar>& start, const Point<Scalar>& end, const int type = 0) {
 	int n = vt.size();
 	if (n <= 1)return 0;
 	int leng = 0;
-	Point* left = new Point[n];
-	Point* right = new Point[n];
+	Point<Scalar>* left = new Point<Scalar>[n];
+	Point<Scalar>* right = new Point<Scalar>[n];
 	for (auto& it : vt) {
 		if (!it.isCCW()) {
-			Point t = it.B;
+			Point<Scalar> t = it.B;
 			it.B = it.C;
 			it.C = t;
 		}
 	}
 	for (auto it = vt.begin(); it < vt.end() - 1; it++) {
-		Triangle t1 = *it, t2 = *(it + 1);
+		Triangle<Scalar> t1 = *it, t2 = *(it + 1);
 		int type = 0;
 		if (t1.A == t2.A)type = 1;
 		if (t1.A == t2.B)type = 2;
@@ -131,21 +132,21 @@ double funnel(std::vector<Triangle>& vt, Point start, Point end, const int type 
 		}
 	}
 
-	Point s = start;
-	Point minl, minr, minu, minv;
+	Point<Scalar> s = start;
+	Point<Scalar> minl, minr, minu, minv;
 	int i = 0, minli = -1, minri;
-	double min;
-	std::vector<Point>path;
+	Scalar min;
+	std::vector<Point<Scalar>>path;
 	path.emplace_back(s);
 	left[n - 1] = end;
 	right[n - 1] = end;
-	auto angle = [](Point _u, Point _v) {return acos(_u * _v / hypot(_u.x, _u.y) / hypot(_v.x, _v.y)); };
+	auto angle = [](Point<Scalar> _u, Point<Scalar> _v) {return acos(_u * _v / hypot(_u.x, _u.y) / hypot(_v.x, _v.y)); };
 	while (1) {
 		if (i > n)break;
-		Point l = left[i];
-		Point r = right[i];
-		Point u = l - s;
-		Point v = r - s;
+		Point<Scalar> l = left[i];
+		Point<Scalar> r = right[i];
+		Point<Scalar> u = l - s;
+		Point<Scalar> v = r - s;
 		if (minli == -1) {
 			minl = l; minr = r;
 			minli = minri = i;
@@ -154,13 +155,13 @@ double funnel(std::vector<Triangle>& vt, Point start, Point end, const int type 
 			i++;
 			continue;
 		}
-		double angle_l = angle(u, minv);
+		Scalar angle_l = angle(u, minv);
 		if (angle_l < min && (u ^ minv) >= 0) {
 			minl = l; minli = i;
 			minu = u;
 			min = angle_l;
 		}
-		double angle_r = angle(minu, v);
+		Scalar angle_r = angle(minu, v);
 		if (angle_r < min && (minu ^ v) >= 0) {
 			minr = r; minri = i;
 			minv = v;
@@ -185,12 +186,12 @@ double funnel(std::vector<Triangle>& vt, Point start, Point end, const int type 
 		i++;
 	}
 	if (s != end)path.emplace_back(end);
-	double dist = 0;
+	Scalar dist = 0;
 	for (auto it = path.begin(); it < path.end() - 1; it++) {
 		dist += it->distance(*(it + 1));
 	}
 	if (type == 1) {
-		for (auto it : path) {
+		for (auto const& it : path) {
 			printf("(%.3lf,%.3lf) ", it.x, it.y);
 		}
 		printf("\n\ndistance:%lf\n\n", dist);
@@ -208,20 +209,21 @@ double funnel(std::vector<Triangle>& vt, Point start, Point end, const int type 
 /// <param name="end">终点</param>
 /// <param name="dist">按照 距离+估价 最小的那个点，计算的起点到当前三角形的距离</param>
 /// <param name="cost">按照 距离+估价 最小的那个点，计算的当前三角形到终点的估价</param>
-void funnelcost(std::vector<Triangle> vt, Point start, Point end, double& dist, double& cost) {
+template<typename Scalar>
+void funnelcost(std::vector<Triangle<Scalar>>& vt, const Point<Scalar>& start, const Point<Scalar>& end, Scalar& dist, Scalar& cost) {
 	int n = vt.size();
 	if (n <= 1)return;
-	Triangle mid = *(vt.end() - 1);
+	Triangle<Scalar> mid = *(vt.end() - 1);
 	if (mid.havePoint(end)) {
 		dist = funnel(vt, start, end);
 		cost = 0;
 		return;
 	}
 	int leng = 0;
-	Point* left = new Point[n];
-	Point* right = new Point[n];
+	Point<Scalar>* left = new Point<Scalar>[n];
+	Point<Scalar>* right = new Point<Scalar>[n];
 	for (auto it = vt.begin(); it < vt.end() - 1; it++) {
-		Triangle t1 = *it, t2 = *(it + 1);
+		Triangle<Scalar> t1 = *it, t2 = *(it + 1);
 		int type = 0;
 		if (t1.A == t2.A)type = 1;
 		if (t1.A == t2.B)type = 2;
@@ -271,13 +273,13 @@ void funnelcost(std::vector<Triangle> vt, Point start, Point end, double& dist, 
 		}
 	}
 
-	Point s, e;
-	Point minl, minr, minu, minv;
+	Point<Scalar> s, e;
+	Point<Scalar> minl, minr, minu, minv;
 	int i, minli, minri;
-	double min;
-	std::vector<Point>path;
-	auto angle = [](Point _u, Point _v) {return acos(_u * _v / hypot(_u.x, _u.y) / hypot(_v.x, _v.y)); };
-	double mindist = INF;
+	Scalar min;
+	std::vector<Point<Scalar>>path;
+	auto angle = [](Point<Scalar> _u, Point<Scalar> _v) {return acos(_u * _v / hypot(_u.x, _u.y) / hypot(_v.x, _v.y)); };
+	Scalar mindist = INF;
 	for (int turn = 1; turn <= 3; turn++) {
 		switch (turn) {
 		case 1:
@@ -298,10 +300,10 @@ void funnelcost(std::vector<Triangle> vt, Point start, Point end, double& dist, 
 		minli = -1;
 		while (1) {
 			if (i > n)break;
-			Point l = left[i];
-			Point r = right[i];
-			Point u = l - s;
-			Point v = r - s;
+			Point<Scalar> l = left[i];
+			Point<Scalar> r = right[i];
+			Point<Scalar> u = l - s;
+			Point<Scalar> v = r - s;
 			if (minli == -1) {
 				minl = l; minr = r;
 				minli = minri = i;
@@ -310,13 +312,13 @@ void funnelcost(std::vector<Triangle> vt, Point start, Point end, double& dist, 
 				i++;
 				continue;
 			}
-			double angle_l = angle(u, minv);
+			Scalar angle_l = angle(u, minv);
 			if (angle_l < min && (u ^ minv) >= 0) {
 				minl = l; minli = i;
 				minu = u;
 				min = angle_l;
 			}
-			double angle_r = angle(minu, v);
+			Scalar angle_r = angle(minu, v);
 			if (angle_r < min && (minu ^ v) >= 0) {
 				minr = r; minri = i;
 				minv = v;
@@ -341,7 +343,7 @@ void funnelcost(std::vector<Triangle> vt, Point start, Point end, double& dist, 
 			i++;
 		}
 		if (s != e)path.emplace_back(e);
-		double distance = 0;
+		Scalar distance = 0;
 		for (auto it = path.begin(); it < path.end() - 1; it++) {
 			distance += it->distance(*(it + 1));
 		}
@@ -376,26 +378,26 @@ void readpoly() {
 	// 从.node文件中读取顶点
 	int n_point;
 	fscanf_s(fnode, "%d 2 0 1\n", &n_point);
-	Point* vp = new Point[n_point];
+	Pointd* vp = new Pointd[n_point];
 	for (int i = 0; i < n_point; i++) {
 		int a;
 		double x, y;
 		fscanf_s(fnode, "%d%lf%lf%d", &a, &x, &y, &a);
-		vp[i] = Point(x, y);
+		vp[i] = Pointd(x, y);
 	}
 
 	// 从.ele文件中读入三角形
 	int n_tri;
 	fscanf_s(fele, "%d 3 0\n", &n_tri);
 	tri_int* vt_int = new tri_int[n_tri];
-	Triangle* vt = new Triangle[n_tri];
+	Triangled* vt = new Triangled[n_tri];
 	for (int i = 0; i < n_tri; i++) {
 		int a, b, c;
 		fscanf_s(fele, "%d%d%d%d", &a, &a, &b, &c);
-		vt[i] = Triangle(vp[a - 1], vp[b - 1], vp[c - 1]);
+		vt[i] = Triangled(vp[a - 1], vp[b - 1], vp[c - 1]);
 		// 方便为了方便漏斗算法的计算，将vt中三角形顶点按逆时针排序
 		if (!vt[i].isCCW()) {
-			Point t = vt[i].B;
+			Pointd t = vt[i].B;
 			vt[i].B = vt[i].C;
 			vt[i].C = t;
 		}
@@ -441,14 +443,14 @@ void readpoly() {
 
 	/* 2 对邻接表进行A*寻路 */
 
-	Point s_point, e_point;
+	Pointd s_point, e_point;
 	printf("start point (2 double):");
 	scanf_s("%lf %lf", &s_point.x, &s_point.y);
 	printf("end point (2 double):");
 	scanf_s("%lf %lf", &e_point.x, &e_point.y);
 
 	// 计算起点和终点在哪个三角形
-	int s_tri=-1, e_tri=-1;
+	int s_tri = -1, e_tri = -1;
 	for (int i = 0; i < n_tri; i++) {
 		if (vt[i].havePoint(s_point)) {
 			s_tri = i;
@@ -475,11 +477,11 @@ void readpoly() {
 	int* pre = new int[n_tri];
 
 	// 优先队列A*寻路
-	std::priority_queue<qnode>q;
+	std::priority_queue<qnode<double>>q;
 	dist[s_tri] = 0;
 	while (!q.empty())q.pop();
-	q.push(qnode(s_tri, 0));
-	qnode tmp;
+	q.push(qnode<double>(s_tri, 0));
+	qnode<double> tmp;
 	while (!q.empty()) {
 		tmp = q.top();
 		q.pop();
@@ -489,7 +491,7 @@ void readpoly() {
 		vis[u] = true;
 
 		// 构造从起点到当前点的三角形路径，并计算距离和代价，是算法的主要耗时点
-		std::vector<Triangle>path_tri;
+		std::vector<Triangled>path_tri;
 		int f = u;
 		while (1) {
 			if (f == s_tri)break;
@@ -506,16 +508,24 @@ void readpoly() {
 			path_tri.pop_back();
 			if (dist[v] > distv) {
 				dist[v] = distv;
-				q.push(qnode(v, dist[v] + cost));
+				q.push(qnode<double>(v, dist[v] + cost));
 				pre[v] = u;
 			}
 		}
 	}
 
 	// 打印路径
-	if (dist[e_tri] == INF)return;
+	if (dist[e_tri] == INF) {
+		delete[]vp;
+		delete[]vt_int;
+		delete[]vt;
+		delete[]vis;
+		delete[]dist;
+		delete[]pre;
+		return;
+	}
 	int* path_tri_id = new int[n_tri];
-	std::vector<Triangle>path_tri;
+	std::vector<Triangled>path_tri;
 	path_tri_id[0] = pre[e_tri];
 	i = 0;
 	while (1) {
