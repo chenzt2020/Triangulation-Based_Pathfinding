@@ -486,7 +486,7 @@ void readpoly() {
 		tmp = q.top();
 		q.pop();
 		int u = tmp.id;
-		if (u == e_tri)break;
+		if (u == e_tri)break; // 注释后可以用性能换精度
 		if (vis[u])continue;
 		vis[u] = true;
 
@@ -518,9 +518,9 @@ void readpoly() {
 	if (dist[e_tri] == INF) {
 		return;
 	}
-	std::unique_ptr<int[]>path_tri_id(new int[n_tri]);
+	std::unique_ptr<int[]>path_tri_id(new int[n_tri]); // 可用vector代替
 	std::vector<Triangled>path_tri;
-	path_tri_id[0] = pre[e_tri];
+	path_tri_id[0] = e_tri;
 	i = 0;
 	while (1) {
 		if (path_tri_id[i] == s_tri)break;
@@ -531,7 +531,7 @@ void readpoly() {
 	path_tri.emplace_back(vt[s_tri]);
 	reverse(path_tri.begin(), path_tri.end());
 	printf("path triangle:\n");
-	for (; i >= 0; i--)
+	for (; i >= 1; i--)
 		printf("%d->", path_tri_id[i] + 1);
 	printf("%d\n\n", e_tri + 1);
 	printf("path point:\n");
