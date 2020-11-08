@@ -2,6 +2,7 @@
 #include "Point.h"
 #include <vector>
 #include <queue>
+#include <memory>
 
 /// <summary>
 /// 将.map文件转换为.poly文件
@@ -71,9 +72,6 @@ template<typename Scalar>
 Scalar funnel(std::vector<Triangle<Scalar>>& vt, const Point<Scalar>& start, const Point<Scalar>& end, const int type = 0) {
 	int n = vt.size();
 	if (n <= 1)return 0;
-	int leng = 0;
-	Point<Scalar>* left = new Point<Scalar>[n];
-	Point<Scalar>* right = new Point<Scalar>[n];
 	for (auto& it : vt) {
 		if (!it.isCCW()) {
 			Point<Scalar> t = it.B;
@@ -81,6 +79,10 @@ Scalar funnel(std::vector<Triangle<Scalar>>& vt, const Point<Scalar>& start, con
 			it.C = t;
 		}
 	}
+
+	int leng = 0;
+	std::unique_ptr<Point<Scalar>[]>left(new Point<Scalar>[n]);
+	std::unique_ptr<Point<Scalar>[]>right(new Point<Scalar>[n]);
 	for (auto it = vt.begin(); it < vt.end() - 1; it++) {
 		Triangle<Scalar> t1 = *it, t2 = *(it + 1);
 		int type = 0;
@@ -196,8 +198,6 @@ Scalar funnel(std::vector<Triangle<Scalar>>& vt, const Point<Scalar>& start, con
 		}
 		printf("\n\ndistance:%lf\n\n", dist);
 	}
-	delete[]left;
-	delete[]right;
 	return dist;
 }
 
@@ -213,15 +213,18 @@ template<typename Scalar>
 void funnelcost(std::vector<Triangle<Scalar>>& vt, const Point<Scalar>& start, const Point<Scalar>& end, Scalar& dist, Scalar& cost) {
 	int n = vt.size();
 	if (n <= 1)return;
+
+	//若终点在当前三角形，则直接计算最短路径
 	Triangle<Scalar> mid = *(vt.end() - 1);
 	if (mid.havePoint(end)) {
 		dist = funnel(vt, start, end);
 		cost = 0;
 		return;
 	}
+
 	int leng = 0;
-	Point<Scalar>* left = new Point<Scalar>[n];
-	Point<Scalar>* right = new Point<Scalar>[n];
+	std::unique_ptr<Point<Scalar>[]>left(new Point<Scalar>[n]);
+	std::unique_ptr<Point<Scalar>[]>right(new Point<Scalar>[n]);
 	for (auto it = vt.begin(); it < vt.end() - 1; it++) {
 		Triangle<Scalar> t1 = *it, t2 = *(it + 1);
 		int type = 0;
@@ -358,11 +361,8 @@ void funnelcost(std::vector<Triangle<Scalar>>& vt, const Point<Scalar>& start, c
 		}
 		printf("%lf %lf\n\n", distance, e.distance(end));
 #endif // DEBUG
+		}
 	}
-
-	delete[]left;
-	delete[]right;
-}
 
 /// <summary>
 /// 读取.poly，构造三角网格的邻接表，并用A*算法和漏斗算法计算最短路径
@@ -378,7 +378,7 @@ void readpoly() {
 	// 从.node文件中读取顶点
 	int n_point;
 	fscanf_s(fnode, "%d 2 0 1\n", &n_point);
-	Pointd* vp = new Pointd[n_point];
+	std::unique_ptr<Pointd[]>vp(new Pointd[n_point]);
 	for (int i = 0; i < n_point; i++) {
 		int a;
 		double x, y;
@@ -389,8 +389,8 @@ void readpoly() {
 	// 从.ele文件中读入三角形
 	int n_tri;
 	fscanf_s(fele, "%d 3 0\n", &n_tri);
-	tri_int* vt_int = new tri_int[n_tri];
-	Triangled* vt = new Triangled[n_tri];
+	std::unique_ptr<tri_int[]>vt_int(new tri_int[n_tri]);
+	std::unique_ptr<Triangled[]>vt(new Triangled[n_tri]);
 	for (int i = 0; i < n_tri; i++) {
 		int a, b, c;
 		fscanf_s(fele, "%d%d%d%d", &a, &a, &b, &c);
@@ -470,11 +470,11 @@ void readpoly() {
 	else printf("start triangle:%d\nend triangle:%d\n\n", s_tri + 1, e_tri + 1);
 
 	// 初始化标记数组、距离数组和父结点数组
-	bool* vis = new bool[n_tri]();
-	double* dist = new double[n_tri];
+	std::unique_ptr<bool[]>vis(new bool[n_tri]());
+	std::unique_ptr<double[]>dist(new double[n_tri]);
 	for (int i = 0; i < n_tri; i++)
 		dist[i] = INF;
-	int* pre = new int[n_tri];
+	std::unique_ptr<int[]>pre(new int[n_tri]);
 
 	// 优先队列A*寻路
 	std::priority_queue<qnode<double>>q;
@@ -516,15 +516,9 @@ void readpoly() {
 
 	// 打印路径
 	if (dist[e_tri] == INF) {
-		delete[]vp;
-		delete[]vt_int;
-		delete[]vt;
-		delete[]vis;
-		delete[]dist;
-		delete[]pre;
 		return;
 	}
-	int* path_tri_id = new int[n_tri];
+	std::unique_ptr<int[]>path_tri_id(new int[n_tri]);
 	std::vector<Triangled>path_tri;
 	path_tri_id[0] = pre[e_tri];
 	i = 0;
@@ -542,12 +536,4 @@ void readpoly() {
 	printf("%d\n\n", e_tri + 1);
 	printf("path point:\n");
 	funnel(path_tri, s_point, e_point, 1);
-
-	delete[]vp;
-	delete[]vt_int;
-	delete[]vt;
-	delete[]vis;
-	delete[]dist;
-	delete[]pre;
-	delete[]path_tri_id;
 }
